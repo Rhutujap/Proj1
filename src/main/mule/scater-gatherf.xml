@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+       xmlns:http="http://www.mulesoft.org/schema/mule/http"
+       xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+       <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="27b73e0e-14f0-490f-8cac-2f83dc812f73" >
+              <http:listener-connection host="0.0.0.0" port="8085" />
+       </http:listener-config>
+       <flow name="test_scatter_gatherFlow" doc:id="90cad255-6136-480d-baf7-99a2c804830d" >
+              <http:listener doc:name="Listener" doc:id="dba357e3-520e-4770-a5ab-05cfa06ffbbe" config-ref="HTTP_Listener_config" path="/scatter"/>
+              <logger level="INFO" doc:name="Logger" doc:id="6fa77cbf-b627-4887-8428-bf3e1491f3ae" message="started"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="4e02a7e2-0c5c-43c0-8e4d-d1b7a177126d" >
+			<route >
+				<set-variable value="#[payload.fno + payload.sno]" doc:name="Set Variable" doc:id="b8abb1f9-9701-41ba-a5f1-e0d47722b220" variableName="result"/>
+			</route>
+			<route >
+				<set-variable value="#[payload.fno * payload.sno]" doc:name="Set Variable" doc:id="2cdfd63d-4dfa-4541-9330-7cb228580a6f" variableName="result" />
+			</route>
+			<route >
+				<set-variable value="#[payload.fno - payload.sno]" doc:name="Set Variable" doc:id="da03c22b-e32e-44ee-b035-6d3b2aeac52d" variableName="result"/>
+			</route>
+              </scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="c5424612-2364-4413-a8cd-f4619f7866a6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.result]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+       </flow>
+       </mule>
